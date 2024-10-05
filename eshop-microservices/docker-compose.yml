@@ -9,7 +9,7 @@ services:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
       context: .
-      dockerfile: src/Services/Catalog/WebApplication1/Dockerfile
+      dockerfile: src/Services/Catalog/Catalog.API/Dockerfile
 
 volumes:
   postgres_catalog:
