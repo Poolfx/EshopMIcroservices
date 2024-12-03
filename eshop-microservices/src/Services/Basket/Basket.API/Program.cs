@@ -1,4 +1,3 @@
-using BuildingBlocks.Exceptions.Handler;
 using Discount.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -6,9 +5,9 @@ using BuildingBlocks.Messaging.MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//add services to the container
+// Add services to the container.
 
-//aplication services
+//Application Services
 var assembly = typeof(Program).Assembly;
 builder.Services.AddCarter();
 builder.Services.AddMediatR(config =>
@@ -18,7 +17,7 @@ builder.Services.AddMediatR(config =>
     config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
-//data services
+//Data Services
 builder.Services.AddMarten(opts =>
 {
     opts.Connection(builder.Configuration.GetConnectionString("Database")!);
@@ -31,12 +30,13 @@ builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    //options.InstanceName = "Basket";
 });
 
-//Grpce services
-builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(option =>
+//Grpc Services
+builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
 {
-    option.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
+    options.Address = new Uri(builder.Configuration["GrpcSettings:DiscountUrl"]!);
 })
 .ConfigurePrimaryHttpMessageHandler(() =>
 {
@@ -49,10 +49,10 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
     return handler;
 });
 
-//Asyn Communictaion services
+//Async Communication Services
 builder.Services.AddMessageBroker(builder.Configuration);
 
-//cross-cuting services
+//Cross-Cutting Services
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddHealthChecks()
@@ -61,7 +61,7 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-//configure the HTTP 
+// Configure the HTTP request pipeline.
 app.MapCarter();
 app.UseExceptionHandler(options => { });
 app.UseHealthChecks("/health",
